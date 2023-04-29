@@ -4,7 +4,7 @@ use gtk::{prelude::*, Inhibit, Window, WindowType};
 use std::{env, fs};
 use webkit2gtk::{
     traits::{SettingsExt, WebViewExt},
-    WebContext, WebView, ApplicationInfo
+    WebContext, WebView,
 };
 #[cfg(feature = "v2_6")]
 use webkit2gtk::{UserContentManager, WebViewExtManual};
@@ -14,6 +14,7 @@ fn main() {
 
     let window = Window::new(WindowType::Toplevel);
     window.set_title("RUST + WEBKIT + GTK");
+    window.set_default_size(800, 600);
     let context = WebContext::default().unwrap();
 
     #[cfg(feature = "v2_4")]
@@ -30,9 +31,6 @@ fn main() {
     let settings = WebViewExt::settings(&webview).unwrap();
     settings.set_enable_developer_extras(true);
 
-    /*let inspector = webview.get_inspector().unwrap();
-    inspector.show();*/
-
     window.show_all();
 
     window.connect_delete_event(|_, _| {
@@ -45,13 +43,14 @@ fn main() {
 
 fn load_html(webview: &WebView) {
     let mut location = env::current_dir().unwrap();
+    location.push("dist");
     location.push("index.html");
     let file = fs::read_to_string(location.to_str().unwrap());
     match file {
         Err(_) => {}
         Ok(data) => {
             location.pop(); // remove index.html from pathbuf
-            webview.load_html(&data, Some(location.to_str().unwrap()));
+            webview.load_html(&data, location.to_str());
         }
     };
 }
